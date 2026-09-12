@@ -371,25 +371,33 @@
         position: relative;
         min-height: 630px;
         overflow: hidden;
+        cursor: grab;
+        touch-action: none;
+        user-select: none;
         border-radius: 30px;
         background:
-          radial-gradient(circle at 50% 49%, rgba(255,56,92,.13), transparent 29%),
-          radial-gradient(circle at 12% 8%, rgba(22,137,232,.08), transparent 25%),
+          radial-gradient(circle at 50% 49%, rgba(255,56,92,.16), transparent 31%),
+          radial-gradient(circle at 12% 8%, rgba(22,137,232,.11), transparent 27%),
+          radial-gradient(circle at 84% 78%, rgba(138,112,247,.09), transparent 24%),
           var(--night);
         box-shadow: 0 24px 70px rgba(0,0,0,.2);
       }
+      .graph-panel.is-panning { cursor: grabbing; }
       .graph-panel::after {
         content: "";
         position: absolute;
+        z-index: 0;
         inset: 0;
-        opacity: .18;
+        opacity: .13;
         background-image: radial-gradient(rgba(255,255,255,.28) .8px, transparent .8px);
         background-size: 26px 26px;
         pointer-events: none;
       }
+      .graph-stage { position: absolute; z-index: 1; inset: 0; transform-origin: 0 0; will-change: transform; }
+      .graph-ambience { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
       .graph-top {
         position: absolute;
-        z-index: 5;
+        z-index: 8;
         top: 20px;
         right: 22px;
         left: 22px;
@@ -405,39 +413,53 @@
       .watching-chip { padding: 7px 10px; border-radius: 999px; background: rgba(24,166,111,.15); color: #65e2b3; letter-spacing: 0; text-transform: none; }
       .watching-chip::before { content: "●"; margin-right: 6px; font-size: .65rem; }
 
+      .graph-controls { position: absolute; z-index: 9; right: 18px; bottom: 18px; display: flex; gap: 7px; padding: 6px; border: 1px solid rgba(255,255,255,.12); border-radius: 15px; background: rgba(18,19,23,.72); box-shadow: 0 8px 28px rgba(0,0,0,.24); backdrop-filter: blur(12px); }
+      .graph-control { display: grid; min-width: 34px; height: 34px; padding: 0 10px; place-items: center; border: 0; border-radius: 10px; background: transparent; color: rgba(255,255,255,.76); font: inherit; font-size: .78rem; font-weight: 800; }
+      .graph-control:hover { background: rgba(255,255,255,.1); color: white; }
+      .graph-hint { position: absolute; z-index: 8; bottom: 23px; left: 22px; color: rgba(255,255,255,.5); font-size: .72rem; font-weight: 650; pointer-events: none; transition: opacity .25s ease; }
+      .graph-panel.interacted .graph-hint { opacity: 0; }
+
       .graph-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-      .graph-lines line { stroke: rgba(255,255,255,.2); stroke-width: 1.2; }
-      .graph-lines line.hot { stroke: rgba(255,56,92,.52); stroke-width: 1.8; }
+      .graph-lines line { stroke: rgba(149,192,255,.26); stroke-width: 1.15; filter: drop-shadow(0 0 4px rgba(71,157,255,.32)); }
+      .graph-lines line.hot { stroke: rgba(255,56,92,.62); stroke-width: 1.6; filter: drop-shadow(0 0 6px rgba(255,56,92,.55)); }
 
       .node {
         position: absolute;
         z-index: 3;
-        display: grid;
-        width: 112px;
-        min-height: 82px;
-        place-content: center;
-        gap: 4px;
-        padding: 12px;
+        display: block;
+        width: 18px;
+        min-height: 18px;
+        padding: 0;
         transform: translate(-50%,-50%);
-        border: 1px solid rgba(255,255,255,.14);
-        border-radius: 22px;
-        background: rgba(33,34,40,.95);
+        border: 1px solid rgba(255,255,255,.72);
+        border-radius: 50%;
+        background: var(--blue);
         color: white;
-        text-align: left;
-        box-shadow: 0 10px 28px rgba(0,0,0,.32);
-        transition: .16s ease;
+        text-align: center;
+        box-shadow: 0 0 0 6px rgba(54,153,255,.08), 0 0 18px rgba(54,153,255,.88), 0 0 36px rgba(54,153,255,.42);
+        cursor: grab;
+        transition: border-color .16s ease, background .16s ease, box-shadow .16s ease;
+        will-change: left, top, transform;
       }
-      .node:hover, .node.active { transform: translate(-50%,-50%) scale(1.04); border-color: rgba(255,255,255,.55); background: #2b2c33; }
-      .node.yours { width: 138px; min-height: 112px; border: 0; border-radius: 32px; background: var(--accent); box-shadow: 0 0 0 9px rgba(255,56,92,.1), 0 18px 42px rgba(0,0,0,.4); }
-      .node-dot { width: 8px; height: 8px; margin-bottom: 4px; border-radius: 50%; background: var(--blue); }
-      .node[data-node="similar"] .node-dot, .node[data-node="similar2"] .node-dot { background: var(--violet); }
-      .node[data-node="lighting"] .node-dot { background: var(--amber); }
-      .node.yours .node-dot { background: white; }
-      .node-type { color: rgba(255,255,255,.54); font-size: .63rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
-      .node.yours .node-type { color: rgba(255,255,255,.72); }
-      .node-title { font-size: .75rem; font-weight: 750; line-height: 1.23; }
-      .node.yours .node-title { font-size: .88rem; }
-      .new-label { position: absolute; top: -8px; right: -8px; padding: 4px 7px; border-radius: 999px; background: white; color: var(--ink); font-size: .62rem; font-weight: 850; }
+      .node::before { content: ""; position: absolute; inset: -8px; border: 1px solid currentColor; border-radius: 50%; opacity: .16; }
+      .node:hover, .node.active { z-index: 5; transform: translate(-50%,-50%) scale(1.35); border-color: white; box-shadow: 0 0 0 8px rgba(90,171,255,.12), 0 0 24px rgba(90,171,255,.95), 0 0 52px rgba(90,171,255,.56); }
+      .node.is-dragging { cursor: grabbing; transform: translate(-50%,-50%) scale(1.5); }
+      .node.yours { width: 27px; min-height: 27px; border: 2px solid white; background: var(--accent); box-shadow: 0 0 0 9px rgba(255,56,92,.1), 0 0 30px rgba(255,56,92,.95), 0 0 68px rgba(255,56,92,.58); }
+      .node[data-node="similar"], .node[data-node="similar2"] { background: var(--violet); box-shadow: 0 0 0 6px rgba(138,112,247,.08), 0 0 18px rgba(138,112,247,.92), 0 0 36px rgba(138,112,247,.45); }
+      .node[data-node="lighting"] { background: var(--amber); box-shadow: 0 0 0 6px rgba(239,174,55,.08), 0 0 18px rgba(239,174,55,.94), 0 0 36px rgba(239,174,55,.45); }
+      .node-dot, .node-type { display: none; }
+      .node-title { position: absolute; top: 25px; left: 50%; width: 112px; transform: translateX(-50%); color: rgba(255,255,255,.68); font-size: .64rem; font-weight: 700; line-height: 1.2; text-align: center; text-shadow: 0 2px 9px #000; pointer-events: none; }
+      .node.yours .node-title { top: 34px; color: white; font-size: .7rem; }
+      .node:hover .node-title, .node.active .node-title { color: white; }
+      .new-label { position: absolute; top: -21px; left: 13px; padding: 3px 6px; border-radius: 999px; background: white; color: var(--ink); font-size: .55rem; font-weight: 850; }
+
+      .graph-popover { position: absolute; z-index: 6; width: 228px; padding: 14px 15px; transform: translateY(-50%); border: 1px solid rgba(255,255,255,.18); border-radius: 15px; background: rgba(18,19,23,.92); color: white; box-shadow: 0 15px 44px rgba(0,0,0,.42), 0 0 30px rgba(66,147,255,.08); backdrop-filter: blur(16px); pointer-events: none; opacity: 0; transition: opacity .15s ease, transform .22s ease; }
+      .graph-popover.show { opacity: 1; transform: translateY(-50%) translateX(0); }
+      .graph-popover::before { content: ""; position: absolute; top: 50%; left: -5px; width: 9px; height: 9px; transform: translateY(-50%) rotate(45deg); border: solid rgba(255,255,255,.18); border-width: 0 0 1px 1px; background: rgba(18,19,23,.92); }
+      .graph-popover.flip::before { right: -5px; left: auto; border-width: 1px 1px 0 0; }
+      .popover-source { display: block; margin-bottom: 5px; color: #7dbdff; font-size: .64rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+      .graph-popover strong { display: block; font-size: .82rem; line-height: 1.25; }
+      .graph-popover p { margin: 5px 0 0; color: rgba(255,255,255,.58); font-size: .7rem; line-height: 1.35; }
 
       .detail-panel {
         display: flex;
@@ -604,11 +626,12 @@
         .workspace-head { align-items: flex-start; flex-direction: column; }
         .workspace-head h1 { font-size: 2.45rem; }
         .graph-panel { min-height: 540px; border-radius: 25px; }
-        .node { width: 90px; min-height: 70px; padding: 9px; border-radius: 17px; }
-        .node.yours { width: 116px; min-height: 94px; border-radius: 27px; }
-        .node-title { font-size: .65rem; }
-        .node.yours .node-title { font-size: .75rem; }
-        .node-type { font-size: .55rem; }
+        .node { width: 17px; min-height: 17px; }
+        .node.yours { width: 25px; min-height: 25px; }
+        .node-title { width: 86px; font-size: .58rem; }
+        .graph-popover { width: 190px; padding: 12px; }
+        .graph-hint { max-width: 165px; bottom: 18px; font-size: .66rem; }
+        .graph-controls { right: 13px; bottom: 13px; }
         .graph-summary { grid-template-columns: 1fr; }
         .graph-summary .primary-button { width: 100%; }
         .outcome-page { width: min(100% - 22px,1160px); padding-top: 24px; }
@@ -693,16 +716,30 @@
           <div class="graph-layout">
             <div class="graph-panel" aria-label="Interactive graph of connected source data. Select any data point to read more.">
               <div class="graph-top"><span>Connected source data</span><span class="watching-chip">Select a point</span></div>
-              <svg class="graph-lines" viewBox="0 0 900 630" preserveAspectRatio="none" aria-hidden="true">
-                <line class="hot" x1="450" y1="315" x2="190" y2="155"/><line x1="450" y1="315" x2="715" y2="150"/><line class="hot" x1="450" y1="315" x2="765" y2="330"/><line x1="450" y1="315" x2="665" y2="520"/><line x1="450" y1="315" x2="275" y2="520"/><line x1="450" y1="315" x2="125" y2="340"/><line x1="190" y1="155" x2="125" y2="340"/><line x1="715" y1="150" x2="765" y2="330"/>
-              </svg>
-              <button class="node yours active" data-node="report" style="left:50%;top:50%"><span class="node-dot"></span><span class="node-type">Your report</span><span class="node-title">Unwanted touching near the bus stop</span></button>
-              <button class="node" data-node="similar" style="left:21%;top:25%"><span class="node-dot"></span><span class="node-type">Community</span><span class="node-title">Similar report 160m away</span></button>
-              <button class="node" data-node="police" style="left:79%;top:24%"><span class="node-dot"></span><span class="node-type">Police data</span><span class="node-title">4 related offences nearby</span></button>
-              <button class="node" data-node="social" style="left:85%;top:53%"><span class="new-label">New</span><span class="node-dot"></span><span class="node-type">Public post</span><span class="node-title">Warning about this bus stop</span></button>
-              <button class="node" data-node="lighting" style="left:74%;top:83%"><span class="node-dot"></span><span class="node-type">Street data</span><span class="node-title">Lighting fault reported</span></button>
-              <button class="node" data-node="similar2" style="left:30%;top:83%"><span class="node-dot"></span><span class="node-type">Community</span><span class="node-title">Harassment reported on this route</span></button>
-              <button class="node" data-node="social2" style="left:14%;top:54%"><span class="node-dot"></span><span class="node-type">Public post</span><span class="node-title">Poor visibility at the stop</span></button>
+              <div class="graph-stage" id="graph-stage">
+                <canvas class="graph-ambience" id="graph-ambience" aria-hidden="true"></canvas>
+                <svg class="graph-lines" id="graph-lines" aria-hidden="true">
+                  <line class="hot" data-from="report" data-to="similar"/><line data-from="report" data-to="police"/><line class="hot" data-from="report" data-to="social"/><line data-from="report" data-to="lighting"/><line data-from="report" data-to="similar2"/><line data-from="report" data-to="social2"/><line data-from="similar" data-to="social2"/><line data-from="police" data-to="social"/>
+                </svg>
+                <button class="node yours active" data-node="report" aria-label="Your report: Unwanted touching near the bus stop"><span class="node-dot"></span><span class="node-type">Your report</span><span class="node-title">Your report</span></button>
+                <button class="node" data-node="similar" aria-label="Community report: Similar report 160 metres away"><span class="node-dot"></span><span class="node-type">Community</span><span class="node-title">Similar report</span></button>
+                <button class="node" data-node="police" aria-label="Police data: Four related offences nearby"><span class="node-dot"></span><span class="node-type">Police data</span><span class="node-title">Police data</span></button>
+                <button class="node" data-node="social" aria-label="Public post: Warning about this bus stop"><span class="new-label">New</span><span class="node-dot"></span><span class="node-type">Public post</span><span class="node-title">Public warning</span></button>
+                <button class="node" data-node="lighting" aria-label="Street data: Lighting fault reported"><span class="node-dot"></span><span class="node-type">Street data</span><span class="node-title">Lighting fault</span></button>
+                <button class="node" data-node="similar2" aria-label="Community report: Harassment reported on this route"><span class="node-dot"></span><span class="node-type">Community</span><span class="node-title">Route report</span></button>
+                <button class="node" data-node="social2" aria-label="Public post: Poor visibility at the stop"><span class="node-dot"></span><span class="node-type">Public post</span><span class="node-title">Visibility post</span></button>
+                <aside class="graph-popover show" id="graph-popover" aria-live="polite">
+                  <span class="popover-source" id="popover-source">Your report · just now</span>
+                  <strong id="popover-title">Unwanted touching near the bus stop</strong>
+                  <p id="popover-copy">The starting point for this connected picture.</p>
+                </aside>
+              </div>
+              <span class="graph-hint">Drag points to reshape · drag space to move · scroll to zoom</span>
+              <div class="graph-controls" aria-label="Graph view controls">
+                <button class="graph-control" id="graph-zoom-out" type="button" aria-label="Zoom out">−</button>
+                <button class="graph-control" id="graph-reset" type="button">Reset</button>
+                <button class="graph-control" id="graph-zoom-in" type="button" aria-label="Zoom in">＋</button>
+              </div>
             </div>
 
             <aside class="detail-panel" aria-live="polite">
@@ -791,6 +828,7 @@
           step.classList.toggle("active", active);
           active ? step.setAttribute("aria-current", "step") : step.removeAttribute("aria-current");
         });
+        if (view === "connections") requestAnimationFrame(startGraphAnimation);
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
@@ -826,13 +864,284 @@
         social2: ["Public post","3 days ago","Post mentions poor visibility at the stop","A public community post says the pavement by the bus stop is difficult to see after dark.","X Street stop","Public community post","45m","Connected because it mentions the same location and independently describes poor lighting."]
       };
 
+      const graphPanel = document.querySelector(".graph-panel");
+      const graphStage = document.getElementById("graph-stage");
+      const graphCanvas = document.getElementById("graph-ambience");
+      const graphContext = graphCanvas.getContext("2d");
+      const graphSvg = document.getElementById("graph-lines");
+      const graphPopover = document.getElementById("graph-popover");
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const initialPositions = {
+        report: [.50,.50], similar: [.21,.25], police: [.79,.24], social: [.85,.53],
+        lighting: [.74,.81], similar2: [.30,.81], social2: [.14,.54]
+      };
+      const graphNodes = [...document.querySelectorAll(".node")].map(element => ({
+        id: element.dataset.node,
+        element,
+        nx: initialPositions[element.dataset.node][0],
+        ny: initialPositions[element.dataset.node][1],
+        x: 0, y: 0, vx: 0, vy: 0, fixed: false
+      }));
+      const graphNodeMap = Object.fromEntries(graphNodes.map(node => [node.id,node]));
+      const graphLinks = [...graphSvg.querySelectorAll("line")].map((element,index) => ({
+        element,
+        from: graphNodeMap[element.dataset.from],
+        to: graphNodeMap[element.dataset.to],
+        hot: element.classList.contains("hot"),
+        phase: index / 8
+      }));
+      const graphStars = Array.from({ length: 94 }, (_,index) => ({
+        x: ((index * 67) % 101) / 101,
+        y: ((index * 43 + 17) % 97) / 97,
+        size: .35 + (index % 5) * .23,
+        alpha: .12 + (index % 7) * .045
+      }));
+      const graphView = { x: 0, y: 0, scale: 1 };
+      let graphWidth = 0;
+      let graphHeight = 0;
+      let graphReady = false;
+      let graphFrame = 0;
+      let activeGraphNode = graphNodeMap.report;
+
+      function applyGraphView() {
+        graphStage.style.transform = `translate(${graphView.x}px,${graphView.y}px) scale(${graphView.scale})`;
+      }
+
+      function resizeGraph() {
+        const bounds = graphPanel.getBoundingClientRect();
+        if (bounds.width < 20 || bounds.height < 20) return false;
+        const oldWidth = graphWidth || bounds.width;
+        const oldHeight = graphHeight || bounds.height;
+        graphWidth = bounds.width;
+        graphHeight = bounds.height;
+        if (!graphReady) {
+          graphNodes.forEach(node => { node.x = node.nx * graphWidth; node.y = node.ny * graphHeight; });
+          graphReady = true;
+        } else if (oldWidth !== graphWidth || oldHeight !== graphHeight) {
+          graphNodes.forEach(node => { node.x *= graphWidth / oldWidth; node.y *= graphHeight / oldHeight; });
+        }
+        const ratio = Math.min(window.devicePixelRatio || 1, 2);
+        graphCanvas.width = Math.round(graphWidth * ratio);
+        graphCanvas.height = Math.round(graphHeight * ratio);
+        graphCanvas.style.width = `${graphWidth}px`;
+        graphCanvas.style.height = `${graphHeight}px`;
+        graphContext.setTransform(ratio,0,0,ratio,0,0);
+        graphSvg.setAttribute("viewBox", `0 0 ${graphWidth} ${graphHeight}`);
+        drawGraph(performance.now());
+        return true;
+      }
+
+      function simulateGraph() {
+        for (let a = 0; a < graphNodes.length; a += 1) {
+          for (let b = a + 1; b < graphNodes.length; b += 1) {
+            const one = graphNodes[a];
+            const two = graphNodes[b];
+            let dx = two.x - one.x;
+            let dy = two.y - one.y;
+            const distanceSquared = Math.max(dx * dx + dy * dy, 900);
+            const distance = Math.sqrt(distanceSquared);
+            const force = 520 / distanceSquared;
+            dx /= distance;
+            dy /= distance;
+            if (!one.fixed) { one.vx -= dx * force * 18; one.vy -= dy * force * 18; }
+            if (!two.fixed) { two.vx += dx * force * 18; two.vy += dy * force * 18; }
+          }
+        }
+        graphLinks.forEach(link => {
+          const dx = link.to.x - link.from.x;
+          const dy = link.to.y - link.from.y;
+          const distance = Math.max(Math.hypot(dx,dy), 1);
+          const target = Math.min(graphWidth,graphHeight) * (link.hot ? .36 : .34);
+          const force = (distance - target) * .00042;
+          if (!link.from.fixed) { link.from.vx += dx * force; link.from.vy += dy * force; }
+          if (!link.to.fixed) { link.to.vx -= dx * force; link.to.vy -= dy * force; }
+        });
+        graphNodes.forEach(node => {
+          if (node.fixed) return;
+          node.vx += (graphWidth * .5 - node.x) * .00008;
+          node.vy += (graphHeight * .51 - node.y) * .00008;
+          node.vx *= .91;
+          node.vy *= .91;
+          node.x += node.vx;
+          node.y += node.vy;
+          node.x = Math.max(52, Math.min(graphWidth - 52, node.x));
+          node.y = Math.max(70, Math.min(graphHeight - 72, node.y));
+        });
+      }
+
+      function drawGraph(time) {
+        if (!graphReady) return;
+        graphContext.clearRect(0,0,graphWidth,graphHeight);
+        graphStars.forEach((star,index) => {
+          const pulse = reducedMotion ? 1 : .76 + Math.sin(time * .0012 + index) * .24;
+          graphContext.beginPath();
+          graphContext.fillStyle = `rgba(210,232,255,${star.alpha * pulse})`;
+          graphContext.arc(star.x * graphWidth,star.y * graphHeight,star.size,0,Math.PI * 2);
+          graphContext.fill();
+        });
+        graphLinks.forEach((link,index) => {
+          const particleCount = link.hot ? 3 : 2;
+          for (let particle = 0; particle < particleCount; particle += 1) {
+            const progress = reducedMotion ? (particle + 1) / (particleCount + 1) : (time * (link.hot ? .00008 : .000055) + link.phase + particle / particleCount) % 1;
+            const x = link.from.x + (link.to.x - link.from.x) * progress;
+            const y = link.from.y + (link.to.y - link.from.y) * progress;
+            graphContext.save();
+            graphContext.shadowBlur = link.hot ? 14 : 10;
+            graphContext.shadowColor = link.hot ? "#ff385c" : "#67b5ff";
+            graphContext.fillStyle = link.hot ? "rgba(255,191,203,.9)" : "rgba(174,218,255,.76)";
+            graphContext.beginPath();
+            graphContext.arc(x,y,link.hot ? 1.8 : 1.25,0,Math.PI * 2);
+            graphContext.fill();
+            graphContext.restore();
+          }
+        });
+        graphNodes.forEach(node => {
+          node.element.style.left = `${node.x}px`;
+          node.element.style.top = `${node.y}px`;
+        });
+        graphLinks.forEach(link => {
+          link.element.setAttribute("x1",link.from.x);
+          link.element.setAttribute("y1",link.from.y);
+          link.element.setAttribute("x2",link.to.x);
+          link.element.setAttribute("y2",link.to.y);
+        });
+        positionGraphPopover(activeGraphNode);
+      }
+
+      function positionGraphPopover(node) {
+        if (!node || !graphReady) return;
+        const flip = node.x > graphWidth - 275;
+        graphPopover.classList.toggle("flip",flip);
+        graphPopover.style.left = `${flip ? node.x - 252 : node.x + 28}px`;
+        graphPopover.style.top = `${Math.max(92,Math.min(graphHeight - 88,node.y))}px`;
+      }
+
+      function startGraphAnimation() {
+        if (!resizeGraph() || graphFrame) return;
+        const animate = time => {
+          if (!document.getElementById("connections-view").classList.contains("active")) { graphFrame = 0; return; }
+          if (!reducedMotion) simulateGraph();
+          drawGraph(time);
+          graphFrame = reducedMotion ? 0 : requestAnimationFrame(animate);
+        };
+        graphFrame = requestAnimationFrame(animate);
+      }
+
+      function animateGraphView(nextScale,node) {
+        const start = { ...graphView };
+        const scale = Math.max(.72,Math.min(1.8,nextScale));
+        const target = node ? {
+          x: graphWidth * .43 - node.x * scale,
+          y: graphHeight * .48 - node.y * scale,
+          scale
+        } : { x: 0, y: 0, scale: 1 };
+        if (reducedMotion) { Object.assign(graphView,target); applyGraphView(); return; }
+        const started = performance.now();
+        const glide = time => {
+          const progress = Math.min((time - started) / 420,1);
+          const eased = 1 - Math.pow(1 - progress,3);
+          graphView.x = start.x + (target.x - start.x) * eased;
+          graphView.y = start.y + (target.y - start.y) * eased;
+          graphView.scale = start.scale + (target.scale - start.scale) * eased;
+          applyGraphView();
+          if (progress < 1) requestAnimationFrame(glide);
+        };
+        requestAnimationFrame(glide);
+      }
+
+      function selectGraphNode(node) {
+        activeGraphNode = node;
+        graphPanel.classList.add("interacted");
+        const data = nodeData[node.id];
+        document.getElementById("popover-source").textContent = `${data[0]} · ${data[1]}`;
+        document.getElementById("popover-title").textContent = data[2];
+        document.getElementById("popover-copy").textContent = `${data[4]} · ${data[6]}`;
+        graphPopover.classList.add("show");
+        positionGraphPopover(node);
+        animateGraphView(Math.max(graphView.scale,1.12),node);
+      }
+
+      graphNodes.forEach(node => {
+        let drag = null;
+        node.element.addEventListener("pointerdown",event => {
+          event.preventDefault();
+          event.stopPropagation();
+          node.element.setPointerCapture(event.pointerId);
+          node.fixed = true;
+          drag = { x: event.clientX, y: event.clientY, nodeX: node.x, nodeY: node.y, moved: false };
+          node.element.classList.add("is-dragging");
+        });
+        node.element.addEventListener("pointermove",event => {
+          if (!drag) return;
+          const dx = (event.clientX - drag.x) / graphView.scale;
+          const dy = (event.clientY - drag.y) / graphView.scale;
+          drag.moved ||= Math.hypot(dx,dy) > 4;
+          node.x = Math.max(45,Math.min(graphWidth - 45,drag.nodeX + dx));
+          node.y = Math.max(60,Math.min(graphHeight - 60,drag.nodeY + dy));
+          node.vx = dx * .012;
+          node.vy = dy * .012;
+          drawGraph(performance.now());
+        });
+        const endNodeDrag = () => {
+          if (!drag) return;
+          node.fixed = false;
+          if (drag.moved) node.element.dataset.dragged = "true";
+          drag = null;
+          node.element.classList.remove("is-dragging");
+        };
+        node.element.addEventListener("pointerup",endNodeDrag);
+        node.element.addEventListener("pointercancel",endNodeDrag);
+      });
+
+      let pan = null;
+      graphPanel.addEventListener("pointerdown",event => {
+        if (event.target.closest(".node,.graph-controls,.graph-top")) return;
+        graphPanel.classList.add("interacted");
+        graphPanel.setPointerCapture(event.pointerId);
+        pan = { x: event.clientX, y: event.clientY, viewX: graphView.x, viewY: graphView.y };
+        graphPanel.classList.add("is-panning");
+      });
+      graphPanel.addEventListener("pointermove",event => {
+        if (!pan) return;
+        graphView.x = pan.viewX + event.clientX - pan.x;
+        graphView.y = pan.viewY + event.clientY - pan.y;
+        applyGraphView();
+      });
+      const endPan = () => { pan = null; graphPanel.classList.remove("is-panning"); };
+      graphPanel.addEventListener("pointerup",endPan);
+      graphPanel.addEventListener("pointercancel",endPan);
+      graphPanel.addEventListener("wheel",event => {
+        event.preventDefault();
+        graphPanel.classList.add("interacted");
+        const bounds = graphPanel.getBoundingClientRect();
+        const pointerX = event.clientX - bounds.left;
+        const pointerY = event.clientY - bounds.top;
+        const worldX = (pointerX - graphView.x) / graphView.scale;
+        const worldY = (pointerY - graphView.y) / graphView.scale;
+        const scale = Math.max(.72,Math.min(1.8,graphView.scale * Math.exp(-event.deltaY * .001)));
+        graphView.x = pointerX - worldX * scale;
+        graphView.y = pointerY - worldY * scale;
+        graphView.scale = scale;
+        applyGraphView();
+      },{ passive: false });
+
+      document.getElementById("graph-zoom-in").addEventListener("click",() => animateGraphView(graphView.scale * 1.18,activeGraphNode));
+      document.getElementById("graph-zoom-out").addEventListener("click",() => animateGraphView(graphView.scale / 1.18,activeGraphNode));
+      document.getElementById("graph-reset").addEventListener("click",() => {
+        graphNodes.forEach(node => { node.x = node.nx * graphWidth; node.y = node.ny * graphHeight; node.vx = 0; node.vy = 0; });
+        animateGraphView(1,null);
+      });
+      window.addEventListener("resize",() => { if (document.getElementById("connections-view").classList.contains("active")) resizeGraph(); });
+
       const detailIds = ["detail-tag","detail-time","detail-title","detail-copy","detail-location","detail-source","detail-distance"];
       document.querySelectorAll(".node").forEach(node => node.addEventListener("click", () => {
+        if (node.dataset.dragged) { delete node.dataset.dragged; return; }
         document.querySelectorAll(".node").forEach(item => item.classList.remove("active"));
         node.classList.add("active");
         const data = nodeData[node.dataset.node];
         detailIds.forEach((id,index) => document.getElementById(id).textContent = data[index]);
         document.getElementById("detail-reason").innerHTML = `<strong>Why it’s connected</strong>${data[7]}`;
+        selectGraphNode(graphNodeMap[node.dataset.node]);
       }));
 
       document.getElementById("watch-toggle").addEventListener("click", event => {
