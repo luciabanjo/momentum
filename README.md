@@ -1,4 +1,4 @@
-# Momentum — Lived Safety Journey
+# Momentum — Safety Reporting Journey
 
 Momentum is an interactive prototype for closing the loop after someone reports a lived-safety concern.
 
