@@ -12,7 +12,7 @@ Someone can report something that happened or an area where they feel unsafe, se
 
 [Open the current prototype](https://lived-safety-journey-mockup.luciatbanjo.chatgpt.site/)
 
-The hosted prototype is currently access-controlled. Everything shown in it is synthetic and nothing is submitted or stored.
+The hosted prototype is public so it can be shared during the hackathon. Everything shown in it is synthetic and nothing is submitted or stored.
 
 ## What is implemented
 
@@ -23,25 +23,28 @@ The hosted prototype is currently access-controlled. Everything shown in it is s
 - Anonymous-by-default language.
 - Description, location and time fields.
 - An illustrative attachment interaction.
-- A short transition from submitting the report to building the connected picture.
+- **Share report** is the demo's starting action and unlocks the next step.
+- A short private-sharing transition before the connected picture opens.
 
 ### 2. Enrich & Insights
 
 - A dark, animated source-data graph within the otherwise light interface.
 - Seven synthetic source data points: the user's report, community reports, public posts, police data and street-lighting data.
+- A staged enrichment sequence: the report appears first, then connected sources and links arrive progressively rather than being ready immediately.
 - Force-style movement that lets the data points react to one another.
 - Draggable points, background panning, scroll zoom and reset controls.
 - Click-to-focus movement for any source point.
 - A compact pop-up card anchored beside the selected point.
 - A fuller detail panel showing the source, date, location, distance and why the data point is connected.
 - Animated connection particles, glow and a starfield-like depth treatment.
-- Derived insights presented **outside** the graph as separate cards.
+- Derived insights presented **outside** the graph as separate cards once enrichment finishes.
+- A clear **Watch this report** action that unlocks the final step.
 
 The graph contains source data only. Patterns and conclusions belong in the separate insights layer.
 
 ### 3. Watch & Outcome
 
-- A watch control for the connected picture.
+- A followed-report state opened from **Watch this report**.
 - An outcome banner showing a synthetic positive change.
 - A timeline showing what happened after the report.
 - A contribution summary showing how the report became part of a wider evidence picture.

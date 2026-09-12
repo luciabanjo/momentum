@@ -20,6 +20,8 @@ The purpose is not reporting for its own sake. A person should be able to share 
 ## Non-negotiable interface decisions
 
 - The report composer should remain simple, familiar and low effort.
+- The hackathon demo starts with Report only. Submitting **Share report** unlocks Enrich & Insights; finishing enrichment unlocks **Watch this report** and the outcome step.
+- Enrichment should feel active: show the user's report first, then reveal synthetic source points and links progressively.
 - The source-data graph contains data points only.
 - Derived insights live outside the graph.
 - Every graph point can be selected and inspected.
@@ -37,14 +39,15 @@ The complete prototype is in `dist/index.html` and uses plain HTML, CSS and Java
 
 It currently provides:
 
-- a synthetic anonymous reporting flow;
+- a synthetic anonymous reporting flow with gated journey steps;
+- progressive enrichment that reveals the agreed seven-point fixture over several seconds;
 - a seven-point interactive force-style graph;
 - node dragging, graph panning, zooming and reset;
 - click-to-focus graph movement;
 - an anchored selected-node pop-up;
 - a synchronized full source-detail panel;
-- separate insight cards;
-- a watch control, outcome banner and event timeline; and
+- separate insight cards that appear after enrichment completes;
+- a **Watch this report** handoff, outcome banner and event timeline; and
 - illustrative nearby support resources.
 
 There is no real persistence, enrichment, identity, moderation, notification or outcome ingestion.

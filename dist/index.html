@@ -106,6 +106,9 @@
 
       .journey-step:hover { color: var(--ink); }
       .journey-step.active { color: var(--ink); }
+      .journey-step:disabled { color: #b7b7b7; cursor: not-allowed; opacity: .7; }
+      .journey-step:disabled:hover { color: #b7b7b7; }
+      .journey-step:disabled .step-icon { background: #f2f2f2; color: #bdbdbd; }
       .journey-step.active::after {
         content: "";
         position: absolute;
@@ -321,6 +324,7 @@
       }
       .primary-button { border: 0; background: var(--accent); color: white; }
       .primary-button:hover { transform: translateY(-1px); background: var(--accent-dark); box-shadow: 0 8px 20px rgba(255,56,92,.25); }
+      .primary-button:disabled { transform: none; background: #b9b9b9; box-shadow: none; cursor: wait; }
       .secondary-button { border: 1px solid var(--line); background: white; color: var(--ink); }
       .secondary-button:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
 
@@ -410,8 +414,9 @@
         letter-spacing: .07em;
         text-transform: uppercase;
       }
-      .watching-chip { padding: 7px 10px; border-radius: 999px; background: rgba(24,166,111,.15); color: #65e2b3; letter-spacing: 0; text-transform: none; }
+      .watching-chip { padding: 7px 10px; border-radius: 999px; background: rgba(22,137,232,.16); color: #8fcaff; letter-spacing: 0; text-transform: none; }
       .watching-chip::before { content: "●"; margin-right: 6px; font-size: .65rem; }
+      .watching-chip.ready { background: rgba(24,166,111,.15); color: #65e2b3; }
 
       .graph-controls { position: absolute; z-index: 9; right: 18px; bottom: 18px; display: flex; gap: 7px; padding: 6px; border: 1px solid rgba(255,255,255,.12); border-radius: 15px; background: rgba(18,19,23,.72); box-shadow: 0 8px 28px rgba(0,0,0,.24); backdrop-filter: blur(12px); }
       .graph-control { display: grid; min-width: 34px; height: 34px; padding: 0 10px; place-items: center; border: 0; border-radius: 10px; background: transparent; color: rgba(255,255,255,.76); font: inherit; font-size: .78rem; font-weight: 800; }
@@ -420,7 +425,8 @@
       .graph-panel.interacted .graph-hint { opacity: 0; }
 
       .graph-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-      .graph-lines line { stroke: rgba(149,192,255,.26); stroke-width: 1.15; filter: drop-shadow(0 0 4px rgba(71,157,255,.32)); }
+      .graph-lines line { stroke: rgba(149,192,255,.26); stroke-width: 1.15; filter: drop-shadow(0 0 4px rgba(71,157,255,.32)); opacity: 0; transition: opacity .55s ease; }
+      .graph-lines line.discovered { opacity: 1; }
       .graph-lines line.hot { stroke: rgba(255,56,92,.62); stroke-width: 1.6; filter: drop-shadow(0 0 6px rgba(255,56,92,.55)); }
 
       .node {
@@ -438,9 +444,13 @@
         text-align: center;
         box-shadow: 0 0 0 6px rgba(54,153,255,.08), 0 0 18px rgba(54,153,255,.88), 0 0 36px rgba(54,153,255,.42);
         cursor: grab;
-        transition: border-color .16s ease, background .16s ease, box-shadow .16s ease;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .4s ease, border-color .16s ease, background .16s ease, box-shadow .16s ease, transform .5s cubic-bezier(.2,.8,.2,1);
         will-change: left, top, transform;
       }
+      .node.discovered { opacity: 1; pointer-events: auto; animation: discover .7s cubic-bezier(.2,.8,.2,1); }
+      @keyframes discover { 0% { opacity: 0; transform: translate(-50%,-50%) scale(.25); } 65% { opacity: 1; transform: translate(-50%,-50%) scale(1.7); } 100% { opacity: 1; transform: translate(-50%,-50%) scale(1); } }
       .node::before { content: ""; position: absolute; inset: -8px; border: 1px solid currentColor; border-radius: 50%; opacity: .16; }
       .node:hover, .node.active { z-index: 5; transform: translate(-50%,-50%) scale(1.35); border-color: white; box-shadow: 0 0 0 8px rgba(90,171,255,.12), 0 0 24px rgba(90,171,255,.95), 0 0 52px rgba(90,171,255,.56); }
       .node.is-dragging { cursor: grabbing; transform: translate(-50%,-50%) scale(1.5); }
@@ -481,7 +491,7 @@
       .detail-stat strong { font-size: .78rem; }
       .why { padding: 15px; border-radius: 17px; background: var(--wash); color: var(--soft); font-size: .81rem; }
       .why strong { display: block; margin-bottom: 4px; color: var(--ink); }
-      .detail-panel .primary-button { width: 100%; margin-top: auto; }
+      .detail-panel .primary-button, .detail-panel .secondary-button { width: 100%; margin-top: auto; }
 
       .insights-section { margin-top: 34px; }
       .insight-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
@@ -491,7 +501,12 @@
         border: 1px solid var(--line);
         border-radius: 22px;
         background: white;
+        transition: opacity .45s ease, transform .45s ease;
       }
+      .insights-section.waiting .insight-card { opacity: 0; transform: translateY(14px); pointer-events: none; }
+      .insights-section.ready .insight-card { opacity: 1; transform: none; }
+      .insights-section.ready .insight-card:nth-child(2) { transition-delay: .08s; }
+      .insights-section.ready .insight-card:nth-child(3) { transition-delay: .16s; }
       .insight-icon { display: grid; width: 38px; height: 38px; margin-bottom: 24px; place-items: center; border-radius: 13px; background: #fff0f3; color: var(--accent-dark); font-size: .92rem; font-weight: 850; }
       .insight-card:nth-child(2) .insight-icon { background: #edf6ff; color: var(--blue); }
       .insight-card:nth-child(3) .insight-icon { background: #fff7e5; color: #a66c00; }
@@ -510,10 +525,8 @@
         border-radius: 22px;
       }
       .watch-control { display: flex; align-items: center; gap: 12px; }
-      .toggle { position: relative; width: 46px; height: 27px; flex: 0 0 auto; border: 0; border-radius: 99px; background: var(--green); }
-      .toggle::after { content: ""; position: absolute; top: 4px; right: 4px; width: 19px; height: 19px; border-radius: 50%; background: white; transition: .15s ease; }
-      .toggle.off { background: #c9c9c9; }
-      .toggle.off::after { right: 23px; }
+      .watch-ready-icon { display: grid; width: 40px; height: 40px; flex: 0 0 auto; place-items: center; border-radius: 50%; background: #edf6ff; color: var(--blue); font-weight: 900; }
+      .graph-summary.ready .watch-ready-icon { background: #eafaf4; color: var(--green); }
       .watch-copy strong { display: block; font-size: .9rem; }
       .watch-copy span { color: var(--muted); font-size: .77rem; }
 
@@ -653,8 +666,8 @@
       <div class="brand" aria-label="Lived Safety home"><span class="brand-mark" aria-hidden="true">⌖</span><span>Lived Safety</span></div>
       <nav class="journey-nav" aria-label="Report journey">
         <button class="journey-step active" data-view="report" aria-current="step"><span class="step-icon">✎</span><span>Report</span></button>
-        <button class="journey-step" data-view="connections"><span class="step-icon">◎</span><span>Enrich &amp; insights</span></button>
-        <button class="journey-step" data-view="outcome"><span class="step-icon">✓</span><span>Watch &amp; outcome</span></button>
+        <button class="journey-step" id="connections-step" data-view="connections" disabled><span class="step-icon">◎</span><span>Enrich &amp; insights</span></button>
+        <button class="journey-step" id="outcome-step" data-view="outcome" disabled><span class="step-icon">✓</span><span>Watch &amp; outcome</span></button>
       </nav>
       <span class="demo-pill">Synthetic demo</span>
     </header>
@@ -709,19 +722,19 @@
       <section class="view" id="connections-view" aria-labelledby="connections-title">
         <div class="workspace">
           <div class="workspace-head">
-            <div><p class="eyebrow">Your connected picture</p><h1 id="connections-title"><span class="signal-count">7</span> data points form a wider picture</h1></div>
-            <span class="live-pill">Watching for new data</span>
+            <div><p class="eyebrow">Your connected picture</p><h1 id="connections-title"><span class="signal-count" id="signal-count">1</span> <span id="connection-headline">data point shared</span></h1></div>
+            <span class="live-pill" id="connection-status">Finding connected data</span>
           </div>
 
           <div class="graph-layout">
             <div class="graph-panel" aria-label="Interactive graph of connected source data. Select any data point to read more.">
-              <div class="graph-top"><span>Connected source data</span><span class="watching-chip">Select a point</span></div>
+              <div class="graph-top"><span>Connected source data</span><span class="watching-chip" id="graph-progress">1 of 7 connected</span></div>
               <div class="graph-stage" id="graph-stage">
                 <canvas class="graph-ambience" id="graph-ambience" aria-hidden="true"></canvas>
                 <svg class="graph-lines" id="graph-lines" aria-hidden="true">
                   <line class="hot" data-from="report" data-to="similar"/><line data-from="report" data-to="police"/><line class="hot" data-from="report" data-to="social"/><line data-from="report" data-to="lighting"/><line data-from="report" data-to="similar2"/><line data-from="report" data-to="social2"/><line data-from="similar" data-to="social2"/><line data-from="police" data-to="social"/>
                 </svg>
-                <button class="node yours active" data-node="report" aria-label="Your report: Unwanted touching near the bus stop"><span class="node-dot"></span><span class="node-type">Your report</span><span class="node-title">Your report</span></button>
+                <button class="node yours active discovered" data-node="report" aria-label="Your report: Unwanted touching near the bus stop"><span class="node-dot"></span><span class="node-type">Your report</span><span class="node-title">Your report</span></button>
                 <button class="node" data-node="similar" aria-label="Community report: Similar report 160 metres away"><span class="node-dot"></span><span class="node-type">Community</span><span class="node-title">Similar report</span></button>
                 <button class="node" data-node="police" aria-label="Police data: Four related offences nearby"><span class="node-dot"></span><span class="node-type">Police data</span><span class="node-title">Police data</span></button>
                 <button class="node" data-node="social" aria-label="Public post: Warning about this bus stop"><span class="new-label">New</span><span class="node-dot"></span><span class="node-type">Public post</span><span class="node-title">Public warning</span></button>
@@ -752,12 +765,12 @@
                 <div class="detail-stat"><span>Distance</span><strong id="detail-distance">—</strong></div>
               </div>
               <div class="why" id="detail-reason"><strong>Why it’s connected</strong>This is your report. The surrounding data points connect by place, time or similarity.</div>
-              <button class="primary-button" type="button" data-go="outcome">See what happened <span aria-hidden="true">→</span></button>
+              <button class="secondary-button" type="button" id="focus-report">Return to your report</button>
             </aside>
           </div>
 
-          <section class="insights-section" aria-labelledby="insights-title">
-            <div class="section-head"><div><p class="eyebrow">Insights</p><h2 id="insights-title">What the connected data suggests</h2></div><span>Derived from synthetic data</span></div>
+          <section class="insights-section waiting" id="insights-section" aria-labelledby="insights-title">
+            <div class="section-head"><div><p class="eyebrow">Insights</p><h2 id="insights-title">What the connected data suggests</h2></div><span id="insights-status">Appear when the picture is ready</span></div>
             <div class="insight-grid">
               <article class="insight-card"><span class="insight-icon">8+</span><span class="insight-label">Time pattern</span><h3>Most activity is after 8pm</h3><p>Five of the seven connected data points relate to the evening or after-dark period.</p></article>
               <article class="insight-card"><span class="insight-icon">180</span><span class="insight-label">Location cluster</span><h3>Four points sit within 180m</h3><p>The closest reports and public posts cluster around the same bus stop.</p></article>
@@ -765,12 +778,12 @@
             </div>
           </section>
 
-          <div class="graph-summary">
+          <div class="graph-summary" id="graph-summary">
             <div class="watch-control">
-              <button class="toggle" id="watch-toggle" type="button" aria-label="Stop watching" aria-pressed="true"></button>
-              <div class="watch-copy"><strong id="watch-title">Watching this picture</strong><span id="watch-copy">New data points will appear in the graph as the picture grows.</span></div>
+              <span class="watch-ready-icon" aria-hidden="true">◎</span>
+              <div class="watch-copy"><strong id="watch-title">Building your connected picture</strong><span id="watch-copy">Checking community reports, public posts and official data…</span></div>
             </div>
-            <button class="primary-button" type="button" data-go="outcome">Watch &amp; see outcomes <span aria-hidden="true">→</span></button>
+            <button class="primary-button" id="watch-report-button" type="button" data-go="outcome" disabled><span id="watch-button-label">Finding connections…</span> <span aria-hidden="true">→</span></button>
           </div>
         </div>
       </section>
@@ -812,7 +825,7 @@
       </section>
     </main>
 
-    <div class="loading" id="loading" aria-live="polite" aria-busy="true"><div class="loading-card"><div class="orbit" aria-hidden="true"></div><h2>Connecting the picture</h2><p class="lede">Checking nearby reports, public posts and official data…</p></div></div>
+    <div class="loading" id="loading" aria-live="polite" aria-busy="true"><div class="loading-card"><div class="orbit" aria-hidden="true"></div><h2>Sharing your report</h2><p class="lede">Keeping your identity and exact position private…</p></div></div>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script>
@@ -832,8 +845,19 @@
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
-      steps.forEach(step => step.addEventListener("click", () => showView(step.dataset.view)));
-      document.querySelectorAll("[data-go]").forEach(button => button.addEventListener("click", () => showView(button.dataset.go)));
+      function unlockStep(view) {
+        const step = steps.find(item => item.dataset.view === view);
+        if (step) step.disabled = false;
+      }
+
+      steps.forEach(step => step.addEventListener("click", () => {
+        if (!step.disabled) showView(step.dataset.view);
+      }));
+      document.querySelectorAll("[data-go]").forEach(button => button.addEventListener("click", () => {
+        if (button.disabled) return;
+        if (button.dataset.go === "outcome") unlockStep("outcome");
+        showView(button.dataset.go);
+      }));
 
       document.querySelectorAll(".kind-button").forEach(button => button.addEventListener("click", () => {
         document.querySelectorAll(".kind-button").forEach(item => item.classList.toggle("active", item === button));
@@ -851,7 +875,13 @@
         event.preventDefault();
         const loading = document.getElementById("loading");
         loading.classList.add("show");
-        setTimeout(() => { loading.classList.remove("show"); showView("connections"); }, 850);
+        document.getElementById("outcome-step").disabled = true;
+        setTimeout(() => {
+          loading.classList.remove("show");
+          unlockStep("connections");
+          showView("connections");
+          startEnrichment();
+        }, 700);
       });
 
       const nodeData = {
@@ -902,6 +932,93 @@
       let graphReady = false;
       let graphFrame = 0;
       let activeGraphNode = graphNodeMap.report;
+      let enrichmentTimers = [];
+      const enrichmentOrder = [
+        ["similar", "Nearby community report connected"],
+        ["social", "Public warning at the same bus stop connected"],
+        ["lighting", "Street-lighting fault connected"],
+        ["police", "Official area data connected"],
+        ["similar2", "Another report on the same route connected"],
+        ["social2", "Public post about low visibility connected"]
+      ];
+
+      function resetEnrichment() {
+        enrichmentTimers.forEach(clearTimeout);
+        enrichmentTimers = [];
+        graphNodes.forEach(node => {
+          node.element.classList.toggle("discovered", node.id === "report");
+          node.element.classList.toggle("active", node.id === "report");
+          node.x = node.nx * graphWidth;
+          node.y = node.ny * graphHeight;
+          node.vx = 0;
+          node.vy = 0;
+        });
+        graphLinks.forEach(link => link.element.classList.remove("discovered"));
+        activeGraphNode = graphNodeMap.report;
+        const reportData = nodeData.report;
+        document.getElementById("popover-source").textContent = `${reportData[0]} · ${reportData[1]}`;
+        document.getElementById("popover-title").textContent = reportData[2];
+        document.getElementById("popover-copy").textContent = `${reportData[4]} · ${reportData[6]}`;
+        detailIds.forEach((id,index) => document.getElementById(id).textContent = reportData[index]);
+        document.getElementById("detail-reason").innerHTML = `<strong>Why it’s connected</strong>${reportData[7]}`;
+        graphPopover.classList.add("show");
+        document.getElementById("signal-count").textContent = "1";
+        document.getElementById("connection-headline").textContent = "data point shared";
+        document.getElementById("connection-status").textContent = "Finding connected data";
+        document.getElementById("graph-progress").textContent = "1 of 7 connected";
+        document.getElementById("graph-progress").classList.remove("ready");
+        document.getElementById("insights-section").classList.remove("ready");
+        document.getElementById("insights-section").classList.add("waiting");
+        document.getElementById("insights-status").textContent = "Appear when the picture is ready";
+        document.getElementById("graph-summary").classList.remove("ready");
+        document.getElementById("watch-title").textContent = "Building your connected picture";
+        document.getElementById("watch-copy").textContent = "Checking community reports, public posts and official data…";
+        document.getElementById("watch-button-label").textContent = "Finding connections…";
+        document.getElementById("watch-report-button").disabled = true;
+        Object.assign(graphView,{ x: 0, y: 0, scale: 1 });
+        applyGraphView();
+        drawGraph(performance.now());
+      }
+
+      function revealConnection(id, status, index) {
+        const node = graphNodeMap[id];
+        node.element.classList.add("discovered");
+        graphLinks.forEach(link => {
+          if (link.from.element.classList.contains("discovered") && link.to.element.classList.contains("discovered")) {
+            link.element.classList.add("discovered");
+          }
+        });
+        const total = index + 2;
+        document.getElementById("signal-count").textContent = String(total);
+        document.getElementById("connection-headline").textContent = total === 1 ? "data point shared" : "data points taking shape";
+        document.getElementById("connection-status").textContent = status;
+        document.getElementById("graph-progress").textContent = `${total} of 7 connected`;
+        drawGraph(performance.now());
+      }
+
+      function finishEnrichment() {
+        document.getElementById("connection-headline").textContent = "data points form a wider picture";
+        document.getElementById("connection-status").textContent = "Connected picture ready";
+        document.getElementById("graph-progress").textContent = "Select any point";
+        document.getElementById("graph-progress").classList.add("ready");
+        document.getElementById("insights-section").classList.remove("waiting");
+        document.getElementById("insights-section").classList.add("ready");
+        document.getElementById("insights-status").textContent = "Derived from synthetic data";
+        document.getElementById("graph-summary").classList.add("ready");
+        document.getElementById("watch-title").textContent = "Keep following this report";
+        document.getElementById("watch-copy").textContent = "Open Watch & outcome to see what changed after the report.";
+        document.getElementById("watch-button-label").textContent = "Watch this report";
+        document.getElementById("watch-report-button").disabled = false;
+        showToast("Connected picture ready");
+      }
+
+      function startEnrichment() {
+        resetEnrichment();
+        enrichmentOrder.forEach(([id,status], index) => {
+          enrichmentTimers.push(setTimeout(() => revealConnection(id,status,index), 550 + index * 520));
+        });
+        enrichmentTimers.push(setTimeout(finishEnrichment, 550 + enrichmentOrder.length * 520));
+      }
 
       function applyGraphView() {
         graphStage.style.transform = `translate(${graphView.x}px,${graphView.y}px) scale(${graphView.scale})`;
@@ -932,10 +1049,11 @@
       }
 
       function simulateGraph() {
-        for (let a = 0; a < graphNodes.length; a += 1) {
-          for (let b = a + 1; b < graphNodes.length; b += 1) {
-            const one = graphNodes[a];
-            const two = graphNodes[b];
+        const discoveredNodes = graphNodes.filter(node => node.element.classList.contains("discovered"));
+        for (let a = 0; a < discoveredNodes.length; a += 1) {
+          for (let b = a + 1; b < discoveredNodes.length; b += 1) {
+            const one = discoveredNodes[a];
+            const two = discoveredNodes[b];
             let dx = two.x - one.x;
             let dy = two.y - one.y;
             const distanceSquared = Math.max(dx * dx + dy * dy, 900);
@@ -947,7 +1065,7 @@
             if (!two.fixed) { two.vx += dx * force * 18; two.vy += dy * force * 18; }
           }
         }
-        graphLinks.forEach(link => {
+        graphLinks.filter(link => link.element.classList.contains("discovered")).forEach(link => {
           const dx = link.to.x - link.from.x;
           const dy = link.to.y - link.from.y;
           const distance = Math.max(Math.hypot(dx,dy), 1);
@@ -956,7 +1074,7 @@
           if (!link.from.fixed) { link.from.vx += dx * force; link.from.vy += dy * force; }
           if (!link.to.fixed) { link.to.vx -= dx * force; link.to.vy -= dy * force; }
         });
-        graphNodes.forEach(node => {
+        discoveredNodes.forEach(node => {
           if (node.fixed) return;
           node.vx += (graphWidth * .5 - node.x) * .00008;
           node.vy += (graphHeight * .51 - node.y) * .00008;
@@ -979,7 +1097,7 @@
           graphContext.arc(star.x * graphWidth,star.y * graphHeight,star.size,0,Math.PI * 2);
           graphContext.fill();
         });
-        graphLinks.forEach((link,index) => {
+        graphLinks.filter(link => link.element.classList.contains("discovered")).forEach((link,index) => {
           const particleCount = link.hot ? 3 : 2;
           for (let particle = 0; particle < particleCount; particle += 1) {
             const progress = reducedMotion ? (particle + 1) / (particleCount + 1) : (time * (link.hot ? .00008 : .000055) + link.phase + particle / particleCount) % 1;
@@ -1136,6 +1254,7 @@
       const detailIds = ["detail-tag","detail-time","detail-title","detail-copy","detail-location","detail-source","detail-distance"];
       document.querySelectorAll(".node").forEach(node => node.addEventListener("click", () => {
         if (node.dataset.dragged) { delete node.dataset.dragged; return; }
+        if (!node.classList.contains("discovered")) return;
         document.querySelectorAll(".node").forEach(item => item.classList.remove("active"));
         node.classList.add("active");
         const data = nodeData[node.dataset.node];
@@ -1144,14 +1263,7 @@
         selectGraphNode(graphNodeMap[node.dataset.node]);
       }));
 
-      document.getElementById("watch-toggle").addEventListener("click", event => {
-        const toggle = event.currentTarget;
-        const off = toggle.classList.toggle("off");
-        toggle.setAttribute("aria-pressed", String(!off));
-        document.getElementById("watch-title").textContent = off ? "Not watching this picture" : "Watching this picture";
-        document.getElementById("watch-copy").textContent = off ? "Turn watching on to see when it changes." : "New data points will appear in the graph as the picture grows.";
-        showToast(off ? "Watching paused" : "Watching turned on");
-      });
+      document.getElementById("focus-report").addEventListener("click", () => graphNodeMap.report.element.click());
 
       document.querySelectorAll("[data-demo-link]").forEach(link => link.addEventListener("click", event => { event.preventDefault(); showToast("Illustrative link in this mock-up"); }));
       let toastTimer;
